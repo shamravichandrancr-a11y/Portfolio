@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPARK - Portfolio & Web Design Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <!-- Unified Header Navigation -->
+    <header>
+        <div class="logo">SPARK</div>
+        <nav>
+            <ul>
+                <li><a href="./index.html" class="active">HOME</a></li>
+                <li><a href="./about.html">ABOUT</a></li>
+                <li><a href="./skills.html">SKILLS</a></li>
+                <li><a href="./contact.html">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Hero Section -->
+    <section class="hero">
+        <div class="left animate-fade-in">
+            <div class="glow-bg"></div>
+            <div class="title-container">
+                <span class="eyebrow">Creative Portfolio</span>
+                <h1>I'm a Website Designer</h1>
+            </div>
+            <p class="hero-description">
+                Passionate about web design and frontend development, I specialize in creating responsive and visually appealing websites.while focusing on clean design, performance, and user experience.
+            </p>
+            <div class="cta-group">
+                <button class="primary-btn" onclick="location.href='./about.html'">Learn More <i class="fas fa-arrow-right"></i></button>
+                <button class="secondary-btn" onclick="location.href='./contact.html'">Get in Touch</button>
+            </div>
+        </div>
+        <div class="right animate-float">
+            <div class="image-wrapper">
+                <img src="./image.png" alt="Creative Portfolio Portrait">
+                <div class="accent-circle"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive 2D Horizontal Scrolling Container -->
+    <section class="scroll-wrapper">
+        <div class="sticky-container">
+            <div class="horizontal-title">
+                <h2>Featured Projects</h2>
+                <p>Scroll down to browse horizontally <i class="fas fa-arrow-right"></i></p>
+            </div>
+            <div class="horizontal-slider" id="horizontal-slider">
+                <!-- Slide 1 -->
+                <div class="slide">
+                    <div class="slide-card">
+                        <div class="slide-image">
+                            <img src="./project_showcase.jpg" alt="SaaS Dashboard Interface">
+                        </div>
+                        <div class="slide-content">
+                            <span class="project-tag">SaaS / Web App</span>
+                            <h3>Apex Analytics Dashboard</h3>
+                            <p>A dark-themed premium business dashboard tracking real-time telemetry, telemetry analysis, and user conversions with highly responsive visualizations.</p>
+                            <a href="./contact.html" class="view-project-link">Inquire Project <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 2 -->
+                <div class="slide">
+                    <div class="slide-card">
+                        <div class="slide-image">
+                            <img src="./hero.png" alt="E-commerce Experience">
+                        </div>
+                        <div class="slide-content">
+                            <span class="project-tag">E-Commerce</span>
+                            <h3>Elysium Shopping Experience</h3>
+                            <p>An interactive, minimal storefront utilizing smooth page transitions, high fidelity design elements, and fluid modern layouts.</p>
+                            <a href="./contact.html" class="view-project-link">Inquire Project <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Slide 3 -->
+                <div class="slide">
+                    <div class="slide-card">
+                        <div class="slide-image">
+                            <img src="./abimage.jpeg" alt="Web Agency Showcase">
+                        </div>
+                        <div class="slide-content">
+                            <span class="project-tag">Studio Site</span>
+                            <h3>Spark Studio Website</h3>
+                            <p>Our official corporate design studio hub demonstrating parallax scrolling, interactive content layers, and clean UI engineering.</p>
+                            <a href="./contact.html" class="view-project-link">Inquire Project <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Extra dynamic content to allow scrolling after horizontal section -->
+    <section class="bottom-cta-section">
+        <div class="cta-card animate-scroll-trigger">
+            <h2>Ready to bring your ideas to life?</h2>
+            <p>Let's collaborate on your next digital experience and build something memorable.</p>
+            <button onclick="location.href='./contact.html'">Start a Project</button>
+        </div>
+    </section>
+
+    <!-- Horizontal scroll interaction script -->
+    <script>
+        const scrollWrapper = document.querySelector('.scroll-wrapper');
+        const slider = document.getElementById('horizontal-slider');
+        
+        function handleScroll() {
+            if (!scrollWrapper || !slider) return;
+            
+            const rect = scrollWrapper.getBoundingClientRect();
+            const wrapperHeight = scrollWrapper.offsetHeight;
+            const windowHeight = window.innerHeight;
+            
+            // Calculate how far the section has scrolled relative to the viewport
+            const scrollDistance = -rect.top;
+            const scrollMax = wrapperHeight - windowHeight;
+            
+            if (scrollDistance >= 0 && scrollDistance <= scrollMax) {
+                // Calculate percentage
+                const percentage = scrollDistance / scrollMax;
+                
+                // Get slider dimensions
+                const sliderWidth = slider.scrollWidth;
+                const viewWidth = window.innerWidth;
+                
+                // Calculate translate distance
+                const maxTranslate = sliderWidth - viewWidth + 80; // Add padding offset
+                const translateAmt = percentage * maxTranslate;
+                
+                slider.style.transform = `translateX(-${translateAmt}px)`;
+            } else if (rect.top > 0) {
+                slider.style.transform = 'translateX(0px)';
+            } else if (scrollDistance > scrollMax) {
+                const sliderWidth = slider.scrollWidth;
+                const viewWidth = window.innerWidth;
+                const maxTranslate = sliderWidth - viewWidth + 80;
+                slider.style.transform = `translateX(-${maxTranslate}px)`;
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('resize', handleScroll);
+        
+        // Trigger once initially
+        handleScroll();
+    </script>
+</body>
+</html>

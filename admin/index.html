@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - SPARK</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">SPARK <span class="badge">ADMIN</span></div>
+        <nav>
+            <ul>
+                <li><a href="../index.html" target="_self">HOME</a></li>
+                <li><a href="../about.html" target="_self">ABOUT</a></li>
+                <li><a href="../skills.html" target="_self">SKILLS</a></li>
+                <li><a href="../contact.html" target="_self">CONTACT</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="admin-container">
+        <section class="admin-header">
+            <div>
+                <h1 class="title">Contact Messages</h1>
+                <p class="subtitle">View and manage contact inquiries received through the website.</p>
+            </div>
+            <div class="stats-card">
+                <span class="stats-label">Total Messages</span>
+                <span id="total-count" class="stats-value">-</span>
+            </div>
+        </section>
+
+        <section class="messages-section">
+            <div id="loading" class="loading-state">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Retrieving messages from Firestore...</p>
+            </div>
+            <div id="messages-list" class="messages-grid">
+                <!-- Dynamically filled -->
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { db } from '../firebase-config.js';
+        import { collection, getDocs, query, orderBy, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const messagesList = document.getElementById('messages-list');
+        const loadingEl = document.getElementById('loading');
+        const totalCountEl = document.getElementById('total-count');
+
+        async function fetchMessages() {
+            try {
+                const contactsQuery = query(collection(db, "contacts"), orderBy("timestamp", "desc"));
+                const querySnapshot = await getDocs(contactsQuery);
+                
+                loadingEl.style.display = 'none';
+                messagesList.innerHTML = '';
+                
+                let count = 0;
+                querySnapshot.forEach((documentSnap) => {
+                    count++;
+                    const data = documentSnap.data();
+                    const id = documentSnap.id;
+                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'message-card';
+                    card.innerHTML = `
+                        <div class="message-meta">
+                            <div class="user-info">
+                                <span class="name"><i class="fas fa-user"></i> ${escapeHtml(data.name || 'Anonymous')}</span>
+                                <span class="email"><i class="fas fa-envelope"></i> <a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></span>
+                            </div>
+                            <span class="date">${escapeHtml(date)}</span>
+                        </div>
+                        <div class="message-body">
+                            <p>${escapeHtml(data.message || '(No Message)')}</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="delete-btn" data-id="${id}"><i class="fas fa-trash-alt"></i> Delete</button>
+                        </div>
+                    `;
+                    messagesList.appendChild(card);
+                });
+
+                totalCountEl.textContent = count;
+
+                if (count === 0) {
+                    messagesList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-folder-open"></i>
+                            <p>No messages received yet.</p>
+                        </div>
+                    `;
+                }
+
+                // Add event listeners to delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const messageId = e.currentTarget.getAttribute('data-id');
+                        if (confirm('Are you sure you want to delete this message?')) {
+                            try {
+                                await deleteDoc(doc(db, "contacts", messageId));
+                                fetchMessages();
+                            } catch (err) {
+                                alert('Error deleting message: ' + err.message);
+                            }
+                        }
+                    });
+                });
+
+            } catch (error) {
+                console.error("Error fetching messages: ", error);
+                loadingEl.innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="color: #f87171; font-size: 40px;"></i>
+                    <p style="color: #f87171; margin-top: 10px;">Failed to retrieve messages. Check Firestore rules or console.</p>
+                `;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        fetchMessages();
+    </script>
+</body>
+</html>
